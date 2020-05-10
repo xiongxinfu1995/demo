@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.seecen.dao.IStudentDao">
+  <resultMap id="BaseResultMap" type="com.seecen.model.Student">
+    <id column="SID" jdbcType="INTEGER" property="sid" />
+    <result column="SNAME" jdbcType="VARCHAR" property="sname" />
+    <result column="BIRTHDAY" jdbcType="TIMESTAMP" property="birthday" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_student
+    where SID = #{sid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.seecen.model.Student">
+    insert into t_student (SID, SNAME, BIRTHDAY
+      )
+    values (#{sid,jdbcType=INTEGER}, #{sname,jdbcType=VARCHAR}, #{birthday,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.seecen.model.Student">
+    update t_student
+    set SNAME = #{sname,jdbcType=VARCHAR},
+      BIRTHDAY = #{birthday,jdbcType=TIMESTAMP}
+    where SID = #{sid,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select SID, SNAME, BIRTHDAY
+    from t_student
+    where SID = #{sid,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select SID, SNAME, BIRTHDAY
+    from t_student
+  </select>
+</mapper>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.seecen.dao.ITeacherDao">
+    <resultMap id="BaseResultMap" type="com.seecen.model.Teacher">
+        <id column="TID" jdbcType="INTEGER" property="tid"/>
+        <result column="CID" jdbcType="INTEGER" property="cid"/>
+        <result column="TNAME" jdbcType="VARCHAR" property="tname"/>
+        <result column="PROF" jdbcType="VARCHAR" property="prof"/>
+        <result column="CNAME" jdbcType="VARCHAR" property="course.cname"/>
+    </resultMap>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_teacher
+    where TID = #{tid,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="com.seecen.model.Teacher">
+    insert into t_teacher (TID, CID, TNAME, 
+      PROF)
+    values (#{tid,jdbcType=INTEGER}, #{cid,jdbcType=INTEGER}, #{tname,jdbcType=VARCHAR}, 
+      #{prof,jdbcType=VARCHAR})
+  </insert>
+    <update id="updateByPrimaryKey" parameterType="com.seecen.model.Teacher">
+    update t_teacher
+    set CID = #{cid,jdbcType=INTEGER},
+      TNAME = #{tname,jdbcType=VARCHAR},
+      PROF = #{prof,jdbcType=VARCHAR}
+    where TID = #{tid,jdbcType=INTEGER}
+  </update>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select TID, CID, TNAME, PROF
+    from t_teacher
+    where TID = #{tid,jdbcType=INTEGER}
+  </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+    select TID, CID, TNAME, PROF
+    from t_teacher
+  </select>
+
+    <select id="findTeacherByCid1" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select TID, CID, TNAME, PROF
+    from t_teacher
+    where TID = #{tid}
+  </select>
+
+    <select id="selectByParam" parameterType="teacher" resultMap="BaseResultMap">
+        select t.TID, t.CID, t.TNAME, t.PROF,ct.cname
+        from t_teacher t INNER join  t_course ct  on t.cid=ct.cid
+        <where>
+            <if test="tname !=null and tname!=''" >
+                and t.tname LIKE concat('%',#{tname},'%')
+            </if>
+            <if test="cid !=null and cid!=''">
+                and t.cid=#{cid}
+            </if>
+            <if test="prof !=null and prof!=''">
+                and t.prof=#{prof}
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>教师编辑</title>
+    <script src="/js/jquery-3.2.1.min%20(1).js" type="text/javascript"></script>
+    <script src="https://cdn.bootcss.com/jquery.serializeJSON/2.9.0/jquery.serializejson.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            if(window.opener){
+                var tname=$(":text[name=tname]").val();
+                var prof=$("select[name=prof]>option:selected").text();
+                var cname=$("select[name=cid]>option:selected").text();
+                $(`#tab>tbody>tr[data-id=${tid}]>td:not(:first,:last)`,window.opener.document).remove();
+                $(`#tab>tbody>tr[data-id=${tid}]>td:first`,window.opener.document).after(
+                    `
+                                <td>${tname}</td>
+                                <td>${prof}</td>
+                                <td>${cname}</td>
+                            `
+                );
+
+            }
+            // 获取课程信息,用于下拉框选择
+            $.ajax({
+                url: "/course/all.do",
+                type: "get",
+                async: true, // 默认为true,代表异步. false为同步
+                dataType: "json",
+                success: function (data) {
+                    $(data).each(function (index, course) {
+                        $("select[name=cid]").append(`<option value="${course.cid}">${course.cname}</option>`);
+                    });
+                }
+            });
+            // 给保存按钮绑定单击事件
+            $("#save").click(function () {
+                var teacher = JSON.stringify($("#fm").serializeJSON());
+                var url = "/teacher/save.do";
+                // 如果隐藏域有值,代表有主键,是做修改
+                var tid = $(":hidden[name=tid]").val();
+                if (tid) {
+                    url = "/teacher/update.do";
+                }
+                $.ajax({
+                    url: url,
+                    type: "post",
+                    async: true, // 默认为true,代表异步. false为同步
+                    dataType: "json", // 预期服务器返回的数据类型
+                    data: teacher, // 传过去的参数
+                    contentType: "application/json;charset=utf-8", // 传过去的参数的数据类型
+                    success: function (data) {
+                        alert(data);
+                        if (window.opener) {
+                            // 获取最新修改的数据
+                            var tname = $(":text[name=tname]").val();
+                            var prof = $("select[name=prof]>option:selected").text();
+                            var cname = $("select[name=cid]>option:selected").text();
+                            // 删除父页面修改的那行里面的单元格td(排除掉第一个序号单元格和最后一个操作单元格)
+                            $(`#tab>tbody>tr[data-id=${tid}]>td:not(:first,:last)`, window.opener.document).remove();
+                            // 找到父页面那行的第一个单元格,往这个单元格后面添加3个单元格内容
+                            $(`#tab>tbody>tr[data-id=${tid}]>td:first`, window.opener.document).after(
+                                `
+                                <td>${tname}</td>
+                                <td>${prof}</td>
+                                <td>${cname}</td>
+                              `
+                            );
+                        }
+                    }
+                });
+            });
+
+            // 获取cookie
+            var tid = Cookies.get("tid");
+            // 如果传了tid过来,代表是做修改
+            if (tid) {
+                Cookies.remove("tid");
+                $.get(`/teacher/${tid}.do`, function (res) {
+                    $(":hidden[name=tid]").val(tid);
+                    $(":text[name=tname]").val(res.tname);
+                    $("select[name=prof]").val(res.prof);
+                    $("select[name=cid]").val(res.cid);
+                }, "json");
+            }
+        });
+    </script>
+</head>
+<body>
+<form id="fm">
+    <input type="hidden" name="tid">
+    <div>教师名称:<input name="tname"></div>
+    <div>
+        职称:<select name="prof">
+        <option value="主公">主公</option>
+        <option value="军师">军师</option>
+        <option value="武将">武将</option>
+    </select>
+    </div>
+    <div>授课名称:<select name="cid"></select></div>
+    <div><input type="button" id="save" value="保存"></div>
+</form>
+</body>
+</html>

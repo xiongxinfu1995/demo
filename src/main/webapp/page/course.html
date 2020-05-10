@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>课程编辑</title>
+    <style>
+        #tab, #fm {
+            margin: auto;
+            width: 700px;
+        }
+
+        #tab {
+            background-color: black;
+        }
+
+        #tab {
+            background-color: black;
+            margin: auto;
+        }
+
+        #tab td, #tab th {
+            background-color: white;
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="/jquerypage/css/zxf_page.css"/>
+    <script src="/jquerypage/js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="/jquerypage/js/zxf_page.js"></script>
+    <script src="https://cdn.bootcss.com/jquery.serializeJSON/2.9.0/jquery.serializejson.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+
+
+
+    <script>
+
+          //保存总记录数
+
+        $(document).ready(function () {
+            //第一次传入false 同步请求，把总条数值赋值给total
+            // page_tool(total);
+            var  totalpage = 0;
+
+            //加载分页插件
+            page_course(1, false);
+
+            make_page(totalpage);
+
+
+
+            //用户点击按钮，模糊分页查询
+            $("#select").click(function (){
+                page_course(1, false);
+                make_page( totalpage );
+            });
+
+
+
+
+
+
+          function page_course(pageNum, async) {
+              //每次查询去表单拿数据
+              var data = JSON.stringify($("#fm").serializeJSON());//
+
+              $("#lb").html("");
+              $.ajax({
+                  url: `/course/page/3/${pageNum}.do`,
+                  type: "post",
+                  async: async,
+                  dataType: "json",
+                  data: data ? data : null,
+                  contentType: "application/json;charset=utf-8",
+                  success: function (data) {
+                      totalpage = data.pages;
+                      $(data.list).each(function (index, course) {
+                          $("#lb").append(`<tr data-id="${course.cid}">
+                            <td>${index + 1}</td>
+                            <td>${course.cid}</td>
+                            <td>${course.cname}</td>
+                            <td>${course.period}</td>
+                            <td>${course.credit}</td>
+                            <td>
+                            <a href="/page/course_edit.html">添加</a>
+                            <a href="javascript:;" onclick="updateCourse(${course.cid})">修改</a>
+                            <a href="javascript:;" onclick="deleteCourse(${course.cid})">删除</a>
+                            </td>
+                            </tr>`);
+                      });
+
+                  }
+              });
+
+          }
+
+
+          function make_page( pageNum ) {
+              $(".zxf_pagediv").createPage({
+                  pageNum: pageNum,
+                  current: 1,
+                  backfun: function (info) {
+                      page_course(info.current, false);
+                  }
+              });
+          }
+
+        });
+          function deleteCourse(cid) {
+              if(confirm("确认删除吗")) {
+                  $.post(`/course/delete/${cid}.do`, function (res) {
+                      if (res) {
+                          $(`tr[data-id=${cid}]`).remove();
+                      }
+                  })
+              }
+          }
+
+          function updateCourse(cid) {
+              Cookies.set("cid",cid);
+              window.open("/page/course_edit.html");
+          }
+    </script>
+</head>
+<body>
+<form id="fm">
+    <h3>条件课程</h3>
+    <input type="hidden" name="cid">
+    <div>课程名称：<input type="text" value="" name="cname">
+    </div>
+    <div>课程学时：<input type="text" value="" name="period"></div>
+    <div>课程学分：<input type="text" value="" name="credit"></div>
+    <input type="button" id="select" value="查询">
+</form>
+<table cellspacing="1" cellpadding="0" id="tab">
+    <thead>
+    <tr>
+        <td>序号</td>
+        <td>授课编号</td>
+        <td>授课名称</td>
+        <td>学时</td>
+        <td>学分</td>
+        <td>操作</td>
+    </tr>
+    </thead>
+    <tbody id="lb">
+
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="6" class="eg">
+            <div class="zxf_pagediv"></div>
+        </td>
+    </tr>
+    </tfoot>
+</table>
+</body>
+</html>

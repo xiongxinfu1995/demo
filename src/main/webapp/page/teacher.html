@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>教师列表</title>
+    <style>
+        #tab, #fm {
+            margin: auto;
+            width: 600px;
+        }
+
+        #tab {
+            background-color: black;
+        }
+
+        #tab td, #tab th {
+            background-color: white;
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="/pagination/pagination.css">
+    <script src="/pagination/common/jquery.min.js"></script>
+    <script src="/pagination/jquery.pagination.js" charset="UTF-8"></script>
+    <script src="https://cdn.bootcss.com/jquery.serializeJSON/2.9.0/jquery.serializejson.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script>
+        var total = 0; // 保存总记录数的
+        $(document).ready(function () {
+            page_teacher(1, false); // 第一次传入false,同步请求,把总条数赋值给total
+            page_tool(total); // 加载分页插件
+            // 获取课程信息,用于下拉框选择
+            $.ajax({
+                url: "/course/all.do",
+                type: "get",
+                async: true, // 默认为true,代表异步. false为同步
+                dataType: "json",
+                success: function (data) {
+                    $(data).each(function (index, course) {
+                        $("select[name=cid]").append(`<option value="${course.cid}">${course.cname}</option>`);
+                    });
+                }
+            });
+            // 用户点击查询按钮
+            $("#select").click(function () {
+                page_teacher(1, false); // 同步
+                page_tool(total);
+            });
+
+        });
+
+        function page_tool(total) {
+            $('.M-box').pagination({
+                totalData: total, // 总数据条数
+                showData: 3, // 每页显示的条数
+                coping: true, // 显示首页和末页
+                jump: true,
+                homePage: "首页",
+                endPage: "末页",
+                callback: function (api) {
+                    // 获取用户点击的页数
+                    var pageNum = api.getCurrent();
+                    page_teacher(pageNum, true);
+                }
+            });
+        }
+
+        function page_teacher(pageNum, async) {
+            $("#tab>tbody").html(""); // 清空之前的记录
+            // 每次查询去表单拿参数
+            var data = JSON.stringify($("#fm").serializeJSON());
+            // 分页查询
+            $.ajax({
+                url: `/teacher/page/${pageNum}/3.do`,
+                type: "post",
+                async: async, // 默认为true,代表异步. false为同步
+                dataType: "json",
+                data: data ? data : null,
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    total = data.total; // 把总记录数赋值给全局变量
+                    $(data.list).each(function (index, teacher) {
+                        $("#tab>tbody").append(`
+                            <tr data-id="${teacher.tid}">
+                                <td>${index + 1}</td>
+                                <td>${teacher.tname}</td>
+                                <td>${teacher.course.cname}</td>
+                                <td>${teacher.prof}</td>
+                                <td>
+                                <a href="/page/teacher_edit.html" target="_blank">添加</a>
+                                <a href="javascript:;" onclick="updateTeacher(${teacher.tid})">修改</a>
+                                <a href="javascript:;" onclick="deleteTeacher(${teacher.tid})">删除</a>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                }
+            });
+        }
+
+        function deleteTeacher(tid) {
+            if (confirm("确认删除吗?")) {
+                $.post(`/teacher/delete/${tid}.do`, function (res) {
+                    if (res) {
+                        $(`tr[data-id=${tid}]`).remove();
+                    }
+                })
+            }
+        }
+
+        function updateTeacher(tid) {
+            Cookies.set("tid", tid);
+            window.open("/page/teacher_edit.html");
+        }
+    </script>
+</head>
+<body>
+<form id="fm">
+    <div>教师名称:<input name="tname"></div>
+    <div>授课名称:
+        <select name="cid" id="cid">
+            <option value="">--请选择--</option>
+        </select>
+    </div>
+    <div>职称:
+        <select name="prof" id="prof">
+            <option value="">--请选择--</option>
+            <option value="主公">主公</option>
+            <option value="军师">军师</option>
+            <option value="武将">武将</option>
+        </select>
+    </div>
+    <div><input id="select" type="button" value="查询"></div>
+</form>
+<table cellpadding="0" cellspacing="1" id="tab">
+    <thead>
+    <tr>
+        <th>序号</th>
+        <th>教师名称</th>
+        <th>授课名称</th>
+        <th>职称</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+    <tfoot>
+    <tr>
+        <td colspan="5" class="eg">
+            <div class="m-style M-box" style="float: right"></div>
+        </td>
+    </tr>
+    </tfoot>
+</table>
+
+</body>
+</html>

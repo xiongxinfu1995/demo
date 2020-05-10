@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<!--ssm整合之后mybatis文件中，只需要配置setting设置
+剩下的都可以交给spring配置文件里面配置
+-->
+
+
+    <settings>
+
+        <setting name="logImpl" value="LOG4J"/>
+        <!--设置session的超时时间-->
+        <setting name="defaultStatementTimeout" value="3"></setting>
+
+        <setting name="localCacheScope" value="STATEMENT"/>
+
+        <!--当有关联查询时，被关联对象可设置延迟加载-->
+        <setting name="lazyLoadingEnabled" value="true"></setting>
+    </settings>
+    <!--取别名-->
+    <!--<typeAliases>
+        <package name="com.seceen.model"></package>
+    </typeAliases>-->
+
+    <!--<plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <property name="helperDialect" value="mysql"/>
+            &lt;!&ndash;参数合理化&ndash;&gt;
+            <property name="reasonable" value="true"/>
+            &lt;!&ndash;如果觉得某个地方使用分页后，你仍然想通过控制参数查询全部的结果&ndash;&gt;
+            &lt;!&ndash;<property name="pageSizeZero" value="true"/>&ndash;&gt;
+        </plugin>
+    </plugins>-->
+
+
+    <!--<mappers>
+        <mapper resource="mapper/ICourseDao.xml"/>
+        <mapper resource="mapper/IStudentDao.xml"/>
+        <mapper resource="mapper/ITeacherDao.xml"/>
+        &lt;!&ndash;注解方式引入注解的所在包&ndash;&gt;
+        &lt;!&ndash;<package name="com.seceen.dao"/>&ndash;&gt;
+
+
+    </mappers>-->
+</configuration>
