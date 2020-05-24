@@ -4,7 +4,7 @@
     <root id="root">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
-          <element id="module-output" name="ssm2020" />
+          <element id="module-output" name="demo" />
         </element>
         <element id="directory" name="lib">
           <element id="library" level="project" name="Maven: com.alibaba:druid:1.1.16" />
@@ -37,7 +37,7 @@
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/target/ssm2020/META-INF/MANIFEST.MF" />
       </element>
-      <element id="javaee-facet-resources" facet="ssm2020/web/Web" />
+      <element id="javaee-facet-resources" facet="demo/web/Web" />
     </root>
   </artifact>
 </component>
